@@ -3,9 +3,11 @@ import React from 'react';
 import { StaggeredMotion, Motion, spring, presets } from 'react-motion';
 
 import Slice from './Slice';
-import { getCoordinatesForPercent, randomColor } from '@/util';
+import { getCoordinatesForPercent, randomColor, uuid } from '@/util';
 
 require('@/assets/style/turntable.scss');
+
+const defaultStiffness = 50;
 
 class Turntable extends React.Component {
     constructor(props) {
@@ -18,7 +20,7 @@ class Turntable extends React.Component {
             index: null,
             newArr: [],
             sum: 0,
-            stiffness: 1,
+            stiffness: defaultStiffness,
             size,
             r: size / 2
         };
@@ -33,7 +35,7 @@ class Turntable extends React.Component {
         this.__init_v2([
             10,
             20,
-            // 30,
+            30,
             // 40,
             // 50,
             // 50,
@@ -65,12 +67,12 @@ class Turntable extends React.Component {
 
         if(e.keyCode === 83) {
             this.setState({
-                stiffness: type === 'down' ? 100 : 1
+                stiffness: type === 'down' ? 1 : defaultStiffness
             });
         }
 
         if(e.keyCode === 82 && type === 'down') {
-            this.__init_v2(new Array(Math.round(Math.random() * 15)).fill(Math.random(0,1) * 100));
+            this.__init_v2(new Array(Math.round(Math.random() * 35)).fill(Math.random(0,1) * 100));
         }
     }
 
@@ -98,7 +100,7 @@ class Turntable extends React.Component {
         
             newSlices.push({
                 fill: prevS ? prevS.fill : randomColor(),
-                v: newV * (nowSum ? nowSum : sum),
+                v: (newV * (nowSum ? nowSum : sum)) || 0,
                 animateV: (prevS && prevS.animateV) ? prevS.animateV : 0,
                 prevEnd: (prevS && prevS.prevEnd) ? prevS.prevEnd : 0
             });
@@ -189,17 +191,12 @@ class Turntable extends React.Component {
             let prevV = prevStyle && prevStyle.v ? prevStyle.v : 0;
 
             acc += prevV;
-
-
+            
             return {
-                v: spring(p.v, {stiffness: this.state.stiffness, damping: 20}),
+                v: spring(p.v, {stiffness: this.state.stiffness, damping: 18}),
                 prevEnd: acc
             };
         });
-
-        // const endValue = newArr.map((_, i) => {
-        //     // let start
-        // });
 
         return endValue;
     }
@@ -209,16 +206,16 @@ class Turntable extends React.Component {
 
         const half = size / 2;
 
-        if(newArr.length === 0) {
-            return <svg></svg>;
-        }
+        // if(newArr.length === 0) {
+        //     return <svg></svg>;
+        // }
         
         return (
         
             <StaggeredMotion
                 defaultStyles={ this.__getDefaultStyles(newArr) }
                 styles={ this.__getStyle }
-                key={ newArr.length }
+                key={ uuid() }
             >
                 {styles => {
                     return (
@@ -244,7 +241,6 @@ class Turntable extends React.Component {
                             { styles.map(({ v, prevEnd }, i) => {
 
                                 if(!v) {
-                                    console.log(newArr);
                                     return null;
                                 }
 

@@ -1,6 +1,14 @@
 const EPS = 1e-6;
+function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000);
+}
 
 module.exports = {
+    uuid() {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    },
+    
     getCoordinatesForPercent(percent, r = 1) {
         let x = Math.cos(2 * Math.PI * percent) * r;
         let y = Math.sin(2 * Math.PI * percent) * r;
